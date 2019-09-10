@@ -26,7 +26,7 @@ namespace Zork
                 string outputString = "";
 
                 Console.Write("> ");
-                command = ToCommand(Console.ReadLine().Trim().ToUpper());
+                command = ToCommand(Console.ReadLine().Trim());
 
                 switch (command)
                 {
