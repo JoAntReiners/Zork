@@ -24,7 +24,7 @@ namespace Zork
             Console.WriteLine(command);
         }
 
-        private static Commands ToCommand(string commandString) => Enum.TryParse(commandString, true, out Commands result) ? result : Commands.UNKNOWN;
+        private static Commands ToCommand(string commandString) => (Enum.TryParse(commandString, true, out Commands result)) ? result : Commands.UNKNOWN;
 
     }
 }
