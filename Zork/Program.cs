@@ -5,8 +5,13 @@ namespace Zork
 
     class Program
     {
-        private static string[] Rooms = {"Forest", "West of House", "Behind House", "Clearing", "Canyon View" };
-        private static int currentPos = 1;
+        private static readonly string[,] Rooms = {
+            {"Rocky Trail", "South of House", "Canyon View" },
+            {"Forest", "West of House", "Behind House" },
+            {"Dense Woods", "North of House", "Clearing" }
+        };
+        private static (int Row , int Column) Location = (1,1);
+        
 
         static void Main(string[] args)
         {
@@ -16,8 +21,8 @@ namespace Zork
             
             while(command != Commands.QUIT)
             {
-                string outputString = "";
-                Console.WriteLine(Rooms[currentPos]);
+                
+                Console.WriteLine(Rooms[Location.Row , Location.Column]);
                 Console.Write("> ");
                 command = ToCommand(Console.ReadLine().Trim());
 
@@ -27,28 +32,21 @@ namespace Zork
                     case Commands.SOUTH:
                     case Commands.EAST:
                     case Commands.WEST:
-                        if (Move(command))
+                        if (!Move(command))
                         {
-                            outputString = $"You moved {command}.";
-                        }
-                        else
-                        {
-                            outputString = "The way is shut!";
+                            Console.WriteLine("The way is shut!");
                         }
                         break;
                     case Commands.LOOK:
-                        outputString = "This is an open field west of a white house, with a boarded front door.\nA rubber mat saying 'Welcome to Zork!' lies by the door.";
+                        Console.WriteLine("This is an open field west of a white house, with a boarded front door.\nA rubber mat saying 'Welcome to Zork!' lies by the door.");
                         break;
                     case Commands.QUIT:
-                        outputString = "Thank you for playing!";
+                        Console.WriteLine("Thank you for playing!");
                         break;
-                    case Commands.UNKNOWN:
                     default:
-                        outputString = "Unknown Command.";
+                        Console.WriteLine("Unknown Command.");
                         break;
                 }
-
-                Console.WriteLine(outputString);
             }
                 
         }
@@ -85,18 +83,21 @@ namespace Zork
                 throw new Exception("Not a valid input!");
             }
 
-            bool moveSuccessful;
+            bool moveSuccessful = true;
 
             switch(command)
             {
-                
-                case Commands.EAST when currentPos < Rooms.Length - 1:
-                    moveSuccessful = true;
-                    currentPos++;
+                case Commands.NORTH when Location.Row > 0:
+                    Location.Row--;
                     break;
-                case Commands.WEST when currentPos > 0:
-                    moveSuccessful = true;
-                    currentPos--;
+                case Commands.SOUTH when Location.Row < Rooms.GetLength(0) - 1:
+                    Location.Row++;
+                    break;
+                case Commands.EAST when Location.Column < Rooms.GetLength(1) - 1:
+                    Location.Column++;
+                    break;
+                case Commands.WEST when Location.Column > 0:
+                    Location.Column--;
                     break;
                 default:
                     moveSuccessful = false;
