@@ -1,17 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Zork
 {
 
     class Program
     {
-        private static readonly string[,] Rooms = {
-            {"Rocky Trail", "South of House", "Canyon View" },
-            {"Forest", "West of House", "Behind House" },
-            {"Dense Woods", "North of House", "Clearing" }
-        };
-        private static (int Row , int Column) Location = (1,1);
-        
+        private static string CurrentRoom
+        {
+            get
+            {
+                return Rooms[Location.Row, Location.Column];
+            }
+        }
 
         static void Main(string[] args)
         {
@@ -22,70 +23,41 @@ namespace Zork
             while(command != Commands.QUIT)
             {
                 
-                Console.WriteLine(Rooms[Location.Row , Location.Column]);
+                Console.WriteLine(CurrentRoom);
                 Console.Write("> ");
                 command = ToCommand(Console.ReadLine().Trim());
 
                 switch (command)
                 {
-                    case Commands.NORTH:                      
-                    case Commands.SOUTH:
-                    case Commands.EAST:
-                    case Commands.WEST:
-                        if (!Move(command))
-                        {
-                            Console.WriteLine("The way is shut!");
-                        }
+                    case Commands.QUIT:
+                        Console.WriteLine("Thank you for playing!");
                         break;
                     case Commands.LOOK:
                         Console.WriteLine("This is an open field west of a white house, with a boarded front door.\nA rubber mat saying 'Welcome to Zork!' lies by the door.");
                         break;
-                    case Commands.QUIT:
-                        Console.WriteLine("Thank you for playing!");
-                        break;
+                    case Commands.NORTH:                      
+                    case Commands.SOUTH:
+                    case Commands.EAST:
+                    case Commands.WEST:
+                        if (Move(command)==false)
+                        {
+                            Console.WriteLine("The way is shut!");
+                        }
+                        break;                  
                     default:
                         Console.WriteLine("Unknown Command.");
                         break;
                 }
             }
-                
-        }
-
-        private static Commands ToCommand(string commandString) => (Enum.TryParse(commandString, true, out Commands result)) ? result : Commands.UNKNOWN;
-
-        private static bool isCommand(Commands commandString)
-        {
-            bool isCommand = false;
-            switch (commandString)
-            {
-                case Commands.NORTH:
-                case Commands.SOUTH:
-                case Commands.EAST:
-                case Commands.WEST:
-                    isCommand = true;
-                    break;
-                default:
-                    isCommand = false;
-                    break;
-            }
-
-            return isCommand;
         }
 
         private static bool Move(Commands command)
         {
-            if(isCommand(command))
-            {
+            Assert.IsTrue(isDirection(command), "Invalid direction.");
 
-            }
-            else
-            {
-                throw new Exception("Not a valid input!");
-            }
+            bool isValidMove = true;
 
-            bool moveSuccessful = true;
-
-            switch(command)
+            switch (command)
             {
                 case Commands.NORTH when Location.Row > 0:
                     Location.Row--;
@@ -100,11 +72,30 @@ namespace Zork
                     Location.Column--;
                     break;
                 default:
-                    moveSuccessful = false;
+                    isValidMove = false;
                     break;
             }
-            return moveSuccessful;
+            return isValidMove;
         }
 
+        private static Commands ToCommand(string commandString) => (Enum.TryParse(commandString, true, out Commands result)) ? result : Commands.UNKNOWN;
+
+        private static bool isDirection(Commands command) => Directions.Contains(command);
+
+        private static readonly string[,] Rooms = {
+            {"Rocky Trail", "South of House", "Canyon View" },
+            {"Forest", "West of House", "Behind House" },
+            {"Dense Woods", "North of House", "Clearing" }
+        };
+
+        private static readonly List<Commands> Directions = new List<Commands>
+        {
+            Commands.NORTH,
+            Commands.SOUTH,
+            Commands.EAST,
+            Commands.WEST
+        };
+
+        private static (int Row, int Column) Location = (1, 1);
     }
 }
