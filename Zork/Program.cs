@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Zork
 {
@@ -14,6 +16,28 @@ namespace Zork
             }
         }
 
+        private static readonly Dictionary<string, Room> RoomMap;
+
+        private enum Fields
+        {
+            Name = 0,
+            Description
+        }
+
+        private enum CommandLineArguements
+        {
+            RoomsFilename = 0
+        }
+
+        static Program()
+        {
+            RoomMap = new Dictionary<string, Room>();
+            foreach(Room room in Rooms)
+            {
+                RoomMap[room.Name] = room;
+            }
+        }
+
         static void Main(string[] args)
         {
             Console.WriteLine("Welcome to Zork!");
@@ -22,7 +46,10 @@ namespace Zork
 
             Room previousRoom = null;
 
-            InitializeRoomDescriptions();
+            const string defaultRoomsFilename = "Rooms.txt";
+            string roomsFilename = (args.Length > 0 ? args[(int)CommandLineArguements.RoomsFilename] : defaultRoomsFilename);
+
+            InitializeRoomDescriptions(roomsFilename);
 
             while(command != Commands.QUIT)
             {
@@ -93,26 +120,20 @@ namespace Zork
 
         private static bool isDirection(Commands command) => Directions.Contains(command);
 
-        private static void InitializeRoomDescriptions()
+        private static void InitializeRoomDescriptions(string roomsFilename)
         {
-            var roomMap = new Dictionary<string, Room>();
+            const string fieldDelimiter = "##";
+            const int expectedFieldCount = 2;
+            var roomQuery = from line in File.ReadLines(roomsFilename)
+                            let fields = line.Split(fieldDelimiter)
+                            where fields.Length == expectedFieldCount
+                            select (Name: fields[(int)Fields.Name],
+                                    Description: fields[(int)Fields.Description]);
 
-            foreach(Room room in Rooms)
+            foreach(var (Name, Description) in roomQuery)
             {
-                roomMap[room.Name] = room;
+                RoomMap[Name].Description = Description;
             }
-
-            roomMap["Rocky Trail"].Description = "You are on a rock-strewn trail.";                                                                                
-            roomMap["South of House"].Description = "You are facing the south side of a white house. There is no door here, and all the windows are barred.";         
-            roomMap["Canyon View"].Description = "You are at the top of the Great Canyon on its south wall.";                                                      
-
-            roomMap["Forest"].Description = "This is a forest, with trees in all directions around you.";                                                     
-            roomMap["West of House"].Description = "This is an open field west of a white house, with a boarded front door.";                                        
-            roomMap["Behind House"].Description = "You are behind the white house. In one corner of the house there is a small window which is slightly ajar.";     
-
-            roomMap["Dense Woods"].Description = "This is a dimly lit forest, with large trees all around. To the east, there appears to be sunlight.";            
-            roomMap["North of House"].Description = "You are facing the north side of a white house. There is no door here, and all the windows are barred.";         
-            roomMap["Clearing"].Description = "You are in a clearing, with a forest surroudning you on the west and the south.";                                
         }
 
         private static readonly Room[,] Rooms = {
