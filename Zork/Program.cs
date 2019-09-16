@@ -95,7 +95,7 @@ namespace Zork
 
         private static void InitializeRoomDescriptions()
         {
-            var roomMap = new Dictionary<string, Room>(0);
+            var roomMap = new Dictionary<string, Room>();
 
             foreach(Room room in Rooms)
             {
