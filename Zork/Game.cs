@@ -1,14 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Reflection;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Scripting;
+
 
 namespace Zork
 {
     public class Game
     {
+        [JsonIgnore]
+        public static Game Instance { get; private set; }
+
         public World World { get; }
 
         [JsonIgnore]
@@ -26,25 +33,7 @@ namespace Zork
             Player = player;
         }
 
-        public Game()
-        {
-            Command[] commands =
-            {
-                new Command("LOOK", new string[] {"LOOK", "L"}, (game, commandContext) => Console.WriteLine(game.Player.Location.Description)),
-
-                new Command("QUIT", new string[] {"QUIT", "Q"}, (game,CommandContext) => game.IsRunning = false),
-
-                new Command("NORTH", new string[] {"NORTH", "N"}, MovementCommands.North),
-
-                new Command("SOUTH", new string[] {"SOUTH", "S"}, MovementCommands.South),
-
-                new Command("EAST", new string[] {"EAST", "E"}, MovementCommands.East),
-
-                new Command("WEST", new string[] {"WEST", "W"}, MovementCommands.West)
-            };
-
-            CommandManager = new CommandManager(commands);
-        }
+        public Game() => CommandManager = new CommandManager();
 
         public void Run()
         {
@@ -78,5 +67,42 @@ namespace Zork
 
             return game;
         }
+
+        private void LoadCommands()
+        {
+            var commandMethods = (from type in Assembly.GetExecutingAssembly().GetTypes()
+                                  from method in type.GetMethods()
+                                  let attribute = method.GetCustomAttribute<CommandAttribute>()
+                                  where type.IsClass && type.GetCustomAttribute<CommandClassAttribute>() != null
+                                  where attribute != null
+                                  select new Command(attribute.CommandName, attribute.Verbs, (Action<Game, CommandContext>)Delegate.CreateDelegate(typeof(Action<Game, CommandContext>), method)));
+
+            CommandManager.AddCommands(commandMethods);
+        }
+
+        private void LoadScripts()
+        {
+            foreach (string file in Directory.EnumerateFiles(ScriptDirectory, ScriptFileExtension))
+            {
+                try
+                {
+                    var scriptOptions = ScriptOptions.Default.AddReferences(Assembly.GetExecutingAssembly());
+#if (DEBUG)
+                    scriptOptions = scriptOptions.WithEmitDebugInformation(true)
+                                    .WithFilePath(new FileInfo(file).FullName)
+                                    .WithFileEncoding(Encoding.UTF8);
+#endif
+                    string script = File.ReadAllText(file);
+                    CSharpScript.RunAsync(script, scriptOptions).Wait();
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine($"Error compiling script: {file} Error: {ex.Message}");
+                }
+            }
+        }
+
+        private static readonly string ScriptDirectory = "Scripts";
+        private static readonly string ScriptFileExtension = "*.csx";
     }
 }
