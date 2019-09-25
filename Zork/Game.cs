@@ -16,16 +16,16 @@ namespace Zork
         [JsonIgnore]
         public static Game Instance { get; private set; }
 
-        public World World { get; }
+        public World World { get; set; }
 
         [JsonIgnore]
         public Player Player { get; private set; }
 
         [JsonIgnore]
-        private bool IsRunning { get; set; }
+        public CommandManager CommandManager { get; }
 
         [JsonIgnore]
-        public CommandManager CommandManager { get; }
+        private bool IsRunning { get; }
 
         public Game(World world, Player player)
         {
@@ -35,12 +35,30 @@ namespace Zork
 
         public Game() => CommandManager = new CommandManager();
 
+        public static void Start(string gameFilename)
+        {
+            if(!File.Exists(gameFilename))
+            {
+                throw new FileNotFoundException("Expected file.", gameFilename);
+            }
+
+            while(Instance == null || Instance.mIsRestarting)
+            {
+                Instance = Load(gameFilename);
+                Instance.LoadCommands();
+                Instance.LoadScripts();
+                Instance.DisplayWelcomeMessage();
+                Instance.Run();
+            }
+        }
+
         public void Run()
         {
-            IsRunning = true;
+            mIsRunning = true;
             Room previousRoom = null;
-            while(IsRunning)
+            while(mIsRunning)
             {
+                Console.WriteLine(Player.Location);
                 if(previousRoom != Player.Location)
                 {
                     CommandManager.PerformCommand(this, "LOOK");
@@ -59,6 +77,15 @@ namespace Zork
 
             }
         }
+
+        public void Restart()
+        {
+            mIsRunning = false;
+            mIsRestarting = true;
+            Console.Clear();
+        }
+
+        public void Quit() => mIsRunning = false;
 
         public static Game Load(string filename)
         {
@@ -102,7 +129,38 @@ namespace Zork
             }
         }
 
+        public bool ConfirmAction(string prompt)
+        {
+            Console.Write(prompt);
+
+            while(true)
+            {
+                string response = Console.ReadLine().Trim().ToUpper();
+                if(response == "YES" || response == "Y")
+                {
+                    return true;
+                }
+                else if(response == "NO" || response == "N")
+                {
+                    return false;
+                }
+                else
+                {
+                    Console.Write("Please answer yes or no.> ");
+                }
+            }
+        }
+
+        private void DisplayWelcomeMessage() => Console.WriteLine(WelcomeMessage);
+
+        public static readonly Random Random = new Random();
         private static readonly string ScriptDirectory = "Scripts";
         private static readonly string ScriptFileExtension = "*.csx";
+
+        [JsonProperty]
+        private string WelcomeMessage = null;
+
+        private bool mIsRunning;
+        private bool mIsRestarting;
     }
 }
