@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29215.179
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zork", "Zork\Zork.csproj", "{49CF07C0-94F9-4EA0-BD33-AA7AC7751150}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zork.Console", "Zork\Zork.Console.csproj", "{49CF07C0-94F9-4EA0-BD33-AA7AC7751150}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zork.Common", "Zork.Common\Zork.Common.csproj", "{D7B028AC-A563-4401-A113-E53AA3C87003}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zork.Builder.WinForms", "Zork.Builder.WinForms\Zork.Builder.WinForms.csproj", "{3D3C001C-F790-4193-B99F-E6400780C3AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{49CF07C0-94F9-4EA0-BD33-AA7AC7751150}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{49CF07C0-94F9-4EA0-BD33-AA7AC7751150}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49CF07C0-94F9-4EA0-BD33-AA7AC7751150}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{49CF07C0-94F9-4EA0-BD33-AA7AC7751150}.Debug|Any CPU.Build.0 = Release|Any CPU
 		{49CF07C0-94F9-4EA0-BD33-AA7AC7751150}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49CF07C0-94F9-4EA0-BD33-AA7AC7751150}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7B028AC-A563-4401-A113-E53AA3C87003}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{D7B028AC-A563-4401-A113-E53AA3C87003}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{D7B028AC-A563-4401-A113-E53AA3C87003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7B028AC-A563-4401-A113-E53AA3C87003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D3C001C-F790-4193-B99F-E6400780C3AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D3C001C-F790-4193-B99F-E6400780C3AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D3C001C-F790-4193-B99F-E6400780C3AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D3C001C-F790-4193-B99F-E6400780C3AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
